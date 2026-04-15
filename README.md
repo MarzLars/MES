@@ -83,14 +83,12 @@ Logikk uttrykkes **deklarativt**:
 
 ## Dataskjema
 
-Systemet bruker følgende relasjonsstruktur:
-
-| Tabell           | Formål                                                                 |
-|------------------|------------------------------------------------------------------------|
-| `Product`        | Produktkatalog for stål med spesifikke enhetsvekter.                   |
-| `Project`        | Grupperer en eller flere arbeidsordrer for sporing.                    |
-| `WorkOrder`      | Hoved-arbeidsordre som tilhører et prosjekt.                           |
-| `WorkOrderLine`  | Individuelle elementer som kobler en arbeidsordre til et produkt.      |
+| Tabell           | Formål og designvalg                                                                 |
+|------------------|--------------------------------------------------------------------------------------|
+| `Product`        | Sentral katalog med metadata og enhetsvekter for å sikre konsistente beregninger.    |
+| `Project`        | Logisk gruppering for å spore arbeidsordrer mot spesifikke kundeoppdrag.             |
+| `WorkOrder`      | Master-entitet som knytter en bestilling til et prosjekt.                            |
+| `WorkOrderLine`  | Detail-entitet som tillater flere produkter per ordre (master-detail struktur).      |
 
 ---
 
@@ -99,3 +97,4 @@ Systemet bruker følgende relasjonsstruktur:
 - **EF Core migrations**: Implementere EF Core migrations for å håndtere databaseendringer mer robust, i stedet for å slette og gjenopprette databasen ved schema mismatch.
 - **Lagerstatus og validering**: Implementere logikk for lagerbeholdning. Systemet har i dag validering av input (f.eks. positive tall), men mangler sjekk mot faktisk lagerstatus.
 - **API-endepunkter**: Eksponere funksjonalitet via et REST API (f.eks. ASP.NET Core) for integrasjon med andre systemer. Per nå er alt integrert i en terminal-app.
+- **Unit testing**: Legge til automatiserte tester for domenemodellen og kommandoer for å sikre stabilitet over tid.
