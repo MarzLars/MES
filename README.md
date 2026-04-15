@@ -1,98 +1,106 @@
-# MES – Mini Order System for Steel Products
+# Manufacturing Execution System (MES) – Interactive Terminal Application
 
-A minimal C# console application that models a manufacturing-execution order workflow for steel products.
+A rich domain-driven C# terminal application that manages a manufacturing-execution order workflow for steel products. Built with .NET 10 and Entity Framework Core, emphasizing declarative design and descriptive naming.
 
 ---
 
-## Running the demo
+## Features
 
-```bash
+- **Interactive Terminal Loop**: A menu-driven interface for managing products, projects, and work orders.
+- **Rich Domain Model**: Encapsulated business logic within records to ensure state consistency and invariant validation.
+- **Entity Framework Core 10**: Robust data persistence using SQLite with a focus on declarative query patterns.
+- **Descriptive Naming**: Elimination of shorthands across the codebase for improved readability and maintainability.
+
+---
+
+## Running the Application
+
+Ensure you have the latest .NET 10 SDK installed.
+
+```powershell
 dotnet run --project src/MES
 ```
 
-No external database setup is required. The app creates an SQLite file (`mes.db`) in the working directory on first run.
+The application automatically initializes an SQLite database (`mes.db`) and seeds it with initial product data if it doesn't already exist.
 
-**Expected output**
+### Main Menu Interface
 
-```
-=== MES Mini Order System ===
+Upon starting, you'll see the following menu:
 
-Created project   Id=1
-Created work order Id=1
+```text
+=== Manufacturing Execution System (MES) ===
 
-Work order #1  (Project: Bridge Renovation 2025)
-Product                Qty     kg/unit     Line kg
-----------------------------------------------------
-HEA 200 Beam            10       42.30      423.00
-S355 Steel Plate         5       78.50      392.50
-----------------------------------------------------
-Total weight (kg)                           815.50
+Available Actions:
+1. List Products
+2. Create Project
+3. Create Work Order
+4. View Work Order
+5. Exit
+
+Select an option:
 ```
 
 ---
 
-## Project structure
+## Project Structure
 
-```
+```text
 src/MES/
-  Models/          – Immutable domain records (Product, Project, WorkOrder, OrderLine)
+  Models/          – Rich domain records (Product, Project, WorkOrder, WorkOrderLine)
   Commands/        – Side-effecting write operations (CreateProject, CreateWorkOrder)
   Queries/         – Read-only operations (GetWorkOrder)
-  Data/            – Connection factory + schema initialiser
-  Program.cs       – Demo driver
-sql/schema.sql     – SQL Server-dialect DDL + sample query
+  Data/            – Entity Framework Core DbContext (ManufacturingDbContext)
+  TerminalInterface.cs – Main interactive application loop and UI logic
+  Program.cs       – Clean entry point for bootstrapping and seeding
 ```
 
 ---
 
-## Design choices
+## Design Philosophy
 
-### Declarative style
+### Rich Domain Design vs. Anemic Domain
 
-Logic is expressed **declaratively** rather than imperatively:
+The application uses a **Rich Domain Model** instead of an anemic one. Business rules and state transitions are encapsulated within the domain records themselves. For example:
+- **Validation**: Units like weight and quantity are validated upon creation (e.g., must be greater than zero).
+- **Encapsulated Collections**: Work order lines are managed through methods on the `WorkOrder` record, preventing external manipulation of the underlying collection.
+- **Computed Properties**: Total weights are calculated dynamically by the domain objects.
 
-* Domain objects are C# `record` types — immutable value objects whose meaning is captured by their shape, not by mutation.
-* LINQ projections (`.Select(…).ToList()`) describe *what* data is needed rather than *how* to iterate.
-* SQL does the heavy lifting for joins, filtering and sorting (see next point).
+### Declarative Design
 
-### Sorting in SQL (`ORDER BY`)
+Logic is expressed **declaratively**:
+- **Entity Framework Core**: Replaces Dapper to allow for expressive, type-safe queries and automatic object-graph mapping.
+- **LINQ**: Used extensively to describe *what* data should be retrieved or how it should be transformed.
 
-Sorting is intentionally delegated to the database with `ORDER BY ol.Id`.
-Philosophically, sorting is a query concern that databases have supported for decades, and they do it optimally (index scans, merge joins, etc.).
-Reimplementing sorting in application code would add accidental complexity with no benefit.
+### Descriptive Naming Convention
 
-### Command / Query Separation (CQS)
+Following a strict rule of **avoiding shorthands**, all properties and variables are named descriptively:
+- `ProductId`, `ProjectId` (using full names instead of just `Id` where appropriate).
+- `Quantity` instead of `Qty`.
+- `WeightInKilogramsPerUnit` instead of `WeightKg`.
+- `TotalLineWeightInKilograms` instead of `TotalWeight`.
 
-All write operations live in `Commands/` and all read operations in `Queries/`.
-Commands return **only the generated Id** of the newly created entity — not a full query result — which is the standard CQS corollary for child-object creation:
+### Latest C# Features & Records
 
-> *It is acceptable for a command to return a reference (e.g. an ID) needed for the caller's bookkeeping, as long as the return value does not qualify as a query result in its own right.*
-
-This prevents callers from using commands as a backdoor query mechanism, keeping side effects explicit.
-
-### Data access – Dapper
-
-[Dapper](https://github.com/DapperLib/Dapper) is a thin micro-ORM that lets SQL remain the first-class language for data access while still providing clean C# mapping.
-It was chosen over Entity Framework Core because:
-
-* The SQL is short, explicit and easy to audit.
-* There is no object-graph tracking needed for this simple domain.
-* It reinforces the declarative philosophy: you write the query you mean.
-
-### SQLite for the demo / SQL Server for production
-
-The demo uses **SQLite** (via `Microsoft.Data.Sqlite`) so it runs without any server setup.
-The `sql/schema.sql` file contains equivalent **SQL Server (T-SQL)** DDL ready for a production environment; the only changes required are the connection string and swapping `Microsoft.Data.Sqlite` for `Microsoft.Data.SqlClient`.
+The project leverages the latest **C#** features and **records** to provide a concise syntax for immutable properties while allowing for rich behavioral logic inside the domain objects.
 
 ---
 
-## SQL schema
+## Data Schema
 
-See [`sql/schema.sql`](sql/schema.sql) for the full DDL and a sample analytic query that returns per-line and total weight using a window function.
+The system uses the following relational structure:
 
-| Table       | Purpose                                         |
-|-------------|-------------------------------------------------|
-| `Product`   | Steel product catalogue with weight per unit    |
-| `Project`   | Groups one or more work orders                  |
-| `WorkOrder` | Belongs to a project; has multiple order lines  |
-| `OrderLine` | Links a work order to a product with a quantity |
+| Table            | Purpose                                                       |
+|------------------|---------------------------------------------------------------|
+| `Product`        | Steel product catalogue with specific unit weights.           |
+| `Project`        | Groups one or more work orders for tracking.                  |
+| `WorkOrder`      | Main order entity belonging to a project.                     |
+| `WorkOrderLine`  | Individual line items linking a work order to a product.      |
+
+---
+
+## Technical Stack
+
+- **Platform**: .NET 10
+- **ORM**: Entity Framework Core 10
+- **Database**: SQLite (local file-based)
+- **Language**: C# (utilizing latest features)

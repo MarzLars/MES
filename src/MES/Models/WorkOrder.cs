@@ -1,19 +1,11 @@
 namespace MES.Models;
 
-public record WorkOrder
+public record WorkOrder(
+    int ProjectId)
 {
     List<WorkOrderLine> _orderLines = new();
 
-    public WorkOrder(int projectId)
-    {
-        ProjectId = projectId;
-    }
-
-    // Required by EF Core
-    WorkOrder() { }
-
     public int WorkOrderId { get; init; }
-    public int ProjectId { get; init; }
     public Project? Project { get; init; }
     public IReadOnlyCollection<WorkOrderLine> OrderLines => _orderLines.AsReadOnly();
 

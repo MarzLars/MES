@@ -15,8 +15,16 @@ primary
 lastDtbSucceeded
 
 [properties]
+AssemblyName=MES
 CommandLineArgsForDesignTimeEvaluation=-langversion:14.0 -define:TRACE
+CompilerGeneratedFilesOutputPath=
 MaxSupportedLangVersion=14.0
+ProjectAssetsFile=<PATH>obj/project.assets.json
+RootNamespace=MES
+RunAnalyzers=
+RunAnalyzersDuringLiveAnalysis=
+SolutionPath=<PATH>../../MES.slnx
+TargetFrameworkIdentifier=.NETCoreApp
 TargetPath=<PATH>bin/Debug/net10.0/MES.dll
 TargetRefPath=<PATH>obj/Debug/net10.0/ref/MES.dll
 TemporaryDependencyNodeTargetIdentifier=net10.0

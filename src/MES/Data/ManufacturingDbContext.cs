@@ -7,9 +7,11 @@ public class ManufacturingDbContext : DbContext
 {
     readonly string _databasePath;
 
-    public ManufacturingDbContext(string databasePath = "mes.db")
+    public ManufacturingDbContext(string? databasePath = null)
     {
-        _databasePath = databasePath;
+        // Default to a consistent path relative to the executable 
+        // to avoid issues with different working directories (e.g., VS Code vs Rider).
+        _databasePath = databasePath ?? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mes.db");
     }
 
     public DbSet<Product> Products => Set<Product>();

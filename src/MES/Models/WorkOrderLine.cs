@@ -13,9 +13,6 @@ public record WorkOrderLine
         Quantity = quantity;
     }
 
-    // Required by EF Core
-    WorkOrderLine() { }
-
     public int WorkOrderLineId { get; init; }
     public int WorkOrderId { get; init; }
     public WorkOrder? WorkOrder { get; init; }

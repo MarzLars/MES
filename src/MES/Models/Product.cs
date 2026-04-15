@@ -18,9 +18,6 @@ public record Product
         WeightInKilogramsPerUnit = weightInKilogramsPerUnit;
     }
 
-    // Required by EF Core
-    Product() { }
-
     public int ProductId { get; init; }
     public string ProductName { get; init; } = string.Empty;
     public decimal WeightInKilogramsPerUnit { get; init; }

@@ -4,7 +4,20 @@ using MES.Models;
 
 //Bootstrap
 using var manufacturingDbContext = new ManufacturingDbContext();
-manufacturingDbContext.Database.EnsureCreated();
+
+try
+{
+    manufacturingDbContext.Database.EnsureCreated();
+    // Verify the schema is compatible (especially if migrating from previous Dapper versions)
+    _ = manufacturingDbContext.Products.Any();
+}
+catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.Message.Contains("no such table"))
+{
+    // Schema mismatch detected (common when migrating from older Dapper/SQLite versions).
+    // Re-initialize for this simple terminal application.
+    manufacturingDbContext.Database.EnsureDeleted();
+    manufacturingDbContext.Database.EnsureCreated();
+}
 
 //Seed Data (Idempotent)
 SeedInitialManufacturingData(manufacturingDbContext);

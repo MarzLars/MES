@@ -1,7 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using MES.Commands;
 using MES.Data;
-using MES.Models;
 using MES.Queries;
 
 namespace MES;

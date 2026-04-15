@@ -12,9 +12,6 @@ public record Project
         ProjectName = projectName;
     }
 
-    // Required by EF Core
-    Project() { }
-
     public int ProjectId { get; init; }
     public string ProjectName { get; init; } = string.Empty;
 }
