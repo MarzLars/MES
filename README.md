@@ -43,7 +43,7 @@ Select an option:
 
 ## Funksjoner
 
-- **Interaktiv terminal**: Et enkelt meny-grensesnitt for å administrere produkter, prosjekter og arbeidsordrer.
+- **Interaktiv terminal**: Enkel terminal grensesnitt for å administrere produkter, prosjekter og arbeidsordrer.
 - **Rich Domain Model**: Innekapslet "forretningslogikk" i `record`-typene for å sikre tilstandskonsistens og invariantvalidering.
 - **Entity Framework Core 10**: Datalagring med SQLite, med fokus på deklarative spørringsmønstre.
 
@@ -93,3 +93,7 @@ Systemet bruker følgende relasjonsstruktur:
 | `WorkOrderLine`  | Individuelle elementer som kobler en arbeidsordre til et produkt.      |
 
 ---
+
+# Hva jeg ville gjort annerledes med mer tid:
+- **UI**: Bruke Blazor eller enkel ASP.NET for å lage et mer brukervennlig grensesnitt, i stedet for en ren terminalapplikasjon.
+- **EF Core migrations**: Implementere EF Core migrations for å håndtere databaseendringer mer robust, i stedet for å slette og gjenopprette databasen ved schema mismatch.
