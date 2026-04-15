@@ -4,10 +4,7 @@ public record Project
 {
     public Project(string projectName)
     {
-        if (string.IsNullOrWhiteSpace(projectName))
-        {
-            throw new ArgumentException("Project name cannot be empty.", nameof(projectName));
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(projectName);
 
         ProjectName = projectName;
     }

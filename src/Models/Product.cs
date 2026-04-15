@@ -4,15 +4,8 @@ public record Product
 {
     public Product(string productName, decimal weightInKilogramsPerUnit)
     {
-        if (string.IsNullOrWhiteSpace(productName)) 
-        {
-            throw new ArgumentException("Product name cannot be empty.", nameof(productName));
-        }
-
-        if (weightInKilogramsPerUnit <= 0) 
-        {
-            throw new ArgumentException("Weight must be greater than zero.", nameof(weightInKilogramsPerUnit));
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(productName);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(weightInKilogramsPerUnit);
 
         ProductName = productName;
         WeightInKilogramsPerUnit = weightInKilogramsPerUnit;

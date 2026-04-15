@@ -4,10 +4,7 @@ public record WorkOrderLine
 {
     public WorkOrderLine(int productId, int quantity)
     {
-        if (quantity <= 0)
-        {
-            throw new ArgumentException("Quantity must be greater than zero.", nameof(quantity));
-        }
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(quantity);
 
         ProductId = productId;
         Quantity = quantity;

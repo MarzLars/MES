@@ -10,7 +10,7 @@ obj/
 ## User-specific VS files
 .vs/
 *.user
+*.lscache
 
 ## Rider / JetBrains
 .idea/
-src/MES.csproj.lscache

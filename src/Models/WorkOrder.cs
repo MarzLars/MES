@@ -3,7 +3,7 @@ namespace MES.Models;
 public record WorkOrder(
     int ProjectId)
 {
-    List<WorkOrderLine> _orderLines = new();
+    private readonly List<WorkOrderLine> _orderLines = [];
 
     public int WorkOrderId { get; init; }
     public Project? Project { get; init; }
@@ -12,10 +12,7 @@ public record WorkOrder(
 
     public void AddWorkOrderLine(int productId, int quantity)
     {
-        if (quantity <= 0)
-        {
-            throw new ArgumentException("Quantity must be greater than zero.", nameof(quantity));
-        }
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(quantity);
 
         _orderLines.Add(new WorkOrderLine(productId, quantity));
     }
