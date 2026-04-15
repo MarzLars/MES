@@ -19,7 +19,7 @@ Applikasjonen initialiserer automatisk en SQLite-database (`mes.db`) og fyller d
 Sørg for at du har nyeste .NET 10 SDK installert.
 
 ```powershell
-dotnet run --project src/MES
+dotnet run --project src
 ```
 
 ### Hovedmenygrensesnitt

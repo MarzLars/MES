@@ -1,5 +1,5 @@
 <Solution>
     <Folder Name="/src/">
-        <Project Path="src/MES/MES.csproj"/>
+        <Project Path="src/MES.csproj"/>
     </Folder>
 </Solution>
