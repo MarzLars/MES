@@ -97,3 +97,5 @@ Systemet bruker følgende relasjonsstruktur:
 # Hva jeg ville gjort annerledes med mer tid:
 - **UI**: Bruke Blazor eller enkel ASP.NET for å lage et mer brukervennlig grensesnitt, i stedet for en ren terminalapplikasjon.
 - **EF Core migrations**: Implementere EF Core migrations for å håndtere databaseendringer mer robust, i stedet for å slette og gjenopprette databasen ved schema mismatch.
+- **Lagerstatus og validering**: Implementere logikk for lagerbeholdning. Systemet har i dag validering av input (f.eks. positive tall), men mangler sjekk mot faktisk lagerstatus.
+- **API-endepunkter**: Eksponere funksjonalitet via et REST API (f.eks. ASP.NET Core) for integrasjon med andre systemer. Per nå er alt integrert i en terminal-app.
