@@ -30,11 +30,11 @@ public sealed class DataSeed(
         if (await dbContext.Products.AnyAsync(cancellationToken)) return;
 
         dbContext.Products.AddRange(
-            Product.Create(new ProductName("HEA 200 Beam"), new UnitWeightKilograms(42.3m),
-                ProductInventoryStatus.InStock),
-            Product.Create(new ProductName("S355 Steel Plate"), new UnitWeightKilograms(78.5m),
-                ProductInventoryStatus.InStock),
-            Product.Create(new ProductName("IPE 300 Beam"), new UnitWeightKilograms(42.2m))
+            ProductFactory.Create(ProductNameFactory.Create("HEA 200 Beam"), UnitWeightKilogramsFactory.Create(42.3m),
+                ProductInventoryStatusFactory.CreateInStock()),
+            ProductFactory.Create(ProductNameFactory.Create("S355 Steel Plate"), UnitWeightKilogramsFactory.Create(78.5m),
+                ProductInventoryStatusFactory.CreateInStock()),
+            ProductFactory.Create(ProductNameFactory.Create("IPE 300 Beam"), UnitWeightKilogramsFactory.Create(42.2m))
         );
 
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -44,7 +44,7 @@ public sealed class DataSeed(
         await EnsureSchemaAndSeedProductsAsync(cancellationToken);
 
         if (!await dbContext.Projects.AnyAsync(cancellationToken)) {
-            dbContext.Projects.Add(Project.Create(new ProjectName("Demo Project")));
+            dbContext.Projects.Add(ProjectFactory.Create(ProjectNameFactory.Create("Demo Project")));
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 
@@ -62,10 +62,10 @@ public sealed class DataSeed(
         if (products.Count == 0) return;
 
         var lineSpecs = products
-            .Select((product, index) => new WorkOrderLineSpec(product.Id, new Quantity(index + 1)))
+            .Select((product, index) => WorkOrderLineSpecFactory.Create(product.Id, QuantityFactory.Create(index + 1)))
             .ToArray();
 
-        var workOrder = WorkOrder.Create(project, lineSpecs, products);
+        var workOrder = WorkOrderFactory.Create(project, lineSpecs, products);
         dbContext.WorkOrders.Add(workOrder);
         await dbContext.SaveChangesAsync(cancellationToken);
     }

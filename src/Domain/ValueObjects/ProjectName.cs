@@ -1,19 +1,11 @@
 ﻿namespace SteelOrdering.Domain.ValueObjects;
 
-public readonly record struct ProjectName
+public readonly record struct ProjectName(string Value);
+
+public static class ProjectNameFactory
 {
-    public ProjectName(string value) {
+    public static ProjectName Create(string value) {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
-        Value = value.Trim();
-    }
-
-    public string Value { get; }
-
-    public static ProjectName From(string value) {
-        return new ProjectName(value);
-    }
-
-    public override string ToString() {
-        return Value;
+        return new(value.Trim());
     }
 }

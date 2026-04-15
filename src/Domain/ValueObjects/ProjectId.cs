@@ -1,10 +1,11 @@
 namespace SteelOrdering.Domain.ValueObjects;
 
-public readonly record struct ProjectId(
-    int Value)
+public readonly record struct ProjectId(int Value);
+
+public static class ProjectIdFactory
 {
-    public static ProjectId From(int value) {
+    public static ProjectId Create(int value) {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
-        return new ProjectId(value);
+        return new(value);
     }
 }

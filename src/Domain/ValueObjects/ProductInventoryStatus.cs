@@ -1,31 +1,25 @@
 namespace SteelOrdering.Domain.ValueObjects;
 
-public sealed record ProductInventoryStatus
+public abstract record ProductInventoryStatus;
+
+public sealed record InStock : ProductInventoryStatus;
+public sealed record LowStock : ProductInventoryStatus;
+public sealed record OutOfStock : ProductInventoryStatus;
+public sealed record Discontinued : ProductInventoryStatus;
+
+public static class ProductInventoryStatusFactory
 {
-    ProductInventoryStatus(string value) {
-        Value = value;
-    }
+    public static ProductInventoryStatus Create(string value) => value switch {
+        null or "" => throw new ArgumentException("Value cannot be null or empty.", nameof(value)),
+        "InStock" => CreateInStock(),
+        "LowStock" => CreateLowStock(),
+        "OutOfStock" => CreateOutOfStock(),
+        "Discontinued" => CreateDiscontinued(),
+        _ => throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown inventory status.")
+    };
 
-    public static ProductInventoryStatus InStock { get; } = new(nameof(InStock));
-    public static ProductInventoryStatus LowStock { get; } = new(nameof(LowStock));
-    public static ProductInventoryStatus OutOfStock { get; } = new(nameof(OutOfStock));
-    public static ProductInventoryStatus Discontinued { get; } = new(nameof(Discontinued));
-
-    public string Value { get; }
-
-    public static ProductInventoryStatus From(string value) {
-        ArgumentException.ThrowIfNullOrEmpty(value);
-
-        return value switch {
-            nameof(InStock) => InStock,
-            nameof(LowStock) => LowStock,
-            nameof(OutOfStock) => OutOfStock,
-            nameof(Discontinued) => Discontinued,
-            _ => throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown inventory status.")
-        };
-    }
-
-    public override string ToString() {
-        return Value;
-    }
+    public static ProductInventoryStatus CreateInStock() => new InStock();
+    public static ProductInventoryStatus CreateLowStock() => new LowStock();
+    public static ProductInventoryStatus CreateOutOfStock() => new OutOfStock();
+    public static ProductInventoryStatus CreateDiscontinued() => new Discontinued();
 }

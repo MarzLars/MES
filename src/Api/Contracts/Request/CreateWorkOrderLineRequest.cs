@@ -1,19 +1,17 @@
-﻿using SteelOrdering.Domain.ValueObjects;
-using DomainProductId = SteelOrdering.Domain.ValueObjects.ProductId;
-using DomainQuantity = SteelOrdering.Domain.ValueObjects.Quantity;
+using SteelOrdering.Domain.ValueObjects;
 
 namespace SteelOrdering.Api.Contracts.Request;
 
-public sealed record CreateWorkOrderLineRequest(
-    int ProductId,
-    int Quantity)
-{
-    public WorkOrderLineSpec ToWorkOrderLineSpec() {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(ProductId);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(Quantity);
+public sealed record CreateWorkOrderLineRequest(int ProductId, int Quantity);
 
-        return new WorkOrderLineSpec(
-            DomainProductId.From(ProductId),
-            DomainQuantity.From(Quantity));
+public static class CreateWorkOrderLineRequestExtensions
+{
+    public static WorkOrderLineSpec ToWorkOrderLineSpec(this CreateWorkOrderLineRequest request) {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var productId = ProductIdFactory.Create(request.ProductId);
+        var quantity = QuantityFactory.Create(request.Quantity);
+
+        return WorkOrderLineSpecFactory.Create(productId, quantity);
     }
 }

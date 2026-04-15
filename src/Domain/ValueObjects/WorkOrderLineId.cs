@@ -1,10 +1,11 @@
 ﻿namespace SteelOrdering.Domain.ValueObjects;
 
-public readonly record struct WorkOrderLineId(
-    int Value)
+public readonly record struct WorkOrderLineId(int Value);
+
+public static class WorkOrderLineIdFactory
 {
-    public static WorkOrderLineId From(int value) {
+    public static WorkOrderLineId Create(int value) {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
-        return new WorkOrderLineId(value);
+        return new(value);
     }
 }

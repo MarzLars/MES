@@ -1,19 +1,11 @@
 ﻿namespace SteelOrdering.Domain.ValueObjects;
 
-public readonly record struct ProductName
+public readonly record struct ProductName(string Value);
+
+public static class ProductNameFactory
 {
-    public ProductName(string value) {
+    public static ProductName Create(string value) {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
-        Value = value.Trim();
-    }
-
-    public string Value { get; }
-
-    public static ProductName From(string value) {
-        return new ProductName(value);
-    }
-
-    public override string ToString() {
-        return Value;
+        return new(value.Trim());
     }
 }

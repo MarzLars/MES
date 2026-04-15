@@ -25,9 +25,11 @@ public static class GetWorkOrderByIdQueryHandler
                 ["workOrderId"] = ["Work order id must be greater than zero."]
             });
 
+        var workOrderId = WorkOrderIdFactory.Create(query.WorkOrderId);
+
         var response = await dbContext.WorkOrders
             .AsNoTracking()
-            .Where(workOrder => workOrder.Id == new WorkOrderId(query.WorkOrderId))
+            .Where(workOrder => workOrder.Id == workOrderId)
             .Select(workOrder => new WorkOrderResponse(
                 workOrder.Id.Value,
                 workOrder.ProjectId.Value,

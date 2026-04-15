@@ -9,6 +9,14 @@ public sealed class ManufacturingDbContext(
 {
     readonly string _databasePath = databasePath ?? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mes.db");
 
+    static string InventoryStatusToString(ProductInventoryStatus status) => status switch {
+        InStock => "InStock",
+        LowStock => "LowStock",
+        OutOfStock => "OutOfStock",
+        Discontinued => "Discontinued",
+        _ => throw new ArgumentOutOfRangeException(nameof(status), "Unknown inventory status.")
+    };
+
     // Default to a consistent path relative to the executable 
     // to avoid issues with different working directories (e.g., VS Code vs Rider).
 
@@ -28,18 +36,18 @@ public sealed class ManufacturingDbContext(
 
             productEntityConfiguration.Property(product => product.Id)
                 .HasColumnName("id")
-                .HasConversion(id => id.Value, value => new ProductId(value))
+                .HasConversion(id => id.Value, value => ProductIdFactory.Create(value))
                 .ValueGeneratedOnAdd();
 
             productEntityConfiguration.Property(product => product.Name)
                 .HasColumnName("name")
-                .HasConversion(name => name.Value, value => ProductName.From(value))
+                .HasConversion(name => name.Value, value => ProductNameFactory.Create(value))
                 .IsRequired()
                 .HasMaxLength(200);
 
             productEntityConfiguration.Property(product => product.UnitWeightKilograms)
                 .HasColumnName("unit_weight_kilograms")
-                .HasConversion(unitWeight => unitWeight.Value, value => UnitWeightKilograms.From(value))
+                .HasConversion(unitWeight => unitWeight.Value, value => UnitWeightKilogramsFactory.Create(value))
                 .HasColumnType("DECIMAL(10,3)");
 
             productEntityConfiguration.Property(product => product.CreatedDateTimeUtc)
@@ -49,8 +57,8 @@ public sealed class ManufacturingDbContext(
             productEntityConfiguration.Property(product => product.InventoryStatus)
                 .HasColumnName("inventory_status")
                 .HasConversion(
-                    status => status.Value,
-                    value => ProductInventoryStatus.From(value))
+                    status => InventoryStatusToString(status),
+                    value => ProductInventoryStatusFactory.Create(value))
                 .HasMaxLength(32)
                 .IsRequired();
 
@@ -65,12 +73,12 @@ public sealed class ManufacturingDbContext(
 
             projectEntityConfiguration.Property(project => project.Id)
                 .HasColumnName("id")
-                .HasConversion(id => id.Value, value => new ProjectId(value))
+                .HasConversion(id => id.Value, value => ProjectIdFactory.Create(value))
                 .ValueGeneratedOnAdd();
 
             projectEntityConfiguration.Property(project => project.Name)
                 .HasColumnName("name")
-                .HasConversion(name => name.Value, value => ProjectName.From(value))
+                .HasConversion(name => name.Value, value => ProjectNameFactory.Create(value))
                 .IsRequired()
                 .HasMaxLength(200);
 
@@ -91,12 +99,12 @@ public sealed class ManufacturingDbContext(
 
             workOrderEntityConfiguration.Property(workOrder => workOrder.Id)
                 .HasColumnName("id")
-                .HasConversion(id => id.Value, value => new WorkOrderId(value))
+                .HasConversion(id => id.Value, value => WorkOrderIdFactory.Create(value))
                 .ValueGeneratedOnAdd();
 
             workOrderEntityConfiguration.Property(workOrder => workOrder.ProjectId)
                 .HasColumnName("project_id")
-                .HasConversion(id => id.Value, value => ProjectId.From(value));
+                .HasConversion(id => id.Value, value => ProjectIdFactory.Create(value));
 
             workOrderEntityConfiguration.HasOne(workOrder => workOrder.Project)
                 .WithMany()
@@ -117,24 +125,24 @@ public sealed class ManufacturingDbContext(
 
             workOrderLineEntityConfiguration.Property(workOrderLine => workOrderLine.Id)
                 .HasColumnName("id")
-                .HasConversion(id => id.Value, value => new WorkOrderLineId(value))
+                .HasConversion(id => id.Value, value => WorkOrderLineIdFactory.Create(value))
                 .ValueGeneratedOnAdd();
 
             workOrderLineEntityConfiguration.Property(workOrderLine => workOrderLine.WorkOrderId)
                 .HasColumnName("work_order_id")
-                .HasConversion(id => id.Value, value => WorkOrderId.From(value));
+                .HasConversion(id => id.Value, value => WorkOrderIdFactory.Create(value));
 
             workOrderLineEntityConfiguration.Property(workOrderLine => workOrderLine.ProductId)
                 .HasColumnName("product_id")
-                .HasConversion(id => id.Value, value => ProductId.From(value));
+                .HasConversion(id => id.Value, value => ProductIdFactory.Create(value));
 
             workOrderLineEntityConfiguration.Property(workOrderLine => workOrderLine.Quantity)
                 .HasColumnName("quantity")
-                .HasConversion(quantity => quantity.Value, value => Quantity.From(value));
+                .HasConversion(quantity => quantity.Value, value => QuantityFactory.Create(value));
 
             workOrderLineEntityConfiguration.Property(workOrderLine => workOrderLine.UnitWeightKilograms)
                 .HasColumnName("unit_weight_kilograms")
-                .HasConversion(unitWeight => unitWeight.Value, value => UnitWeightKilograms.From(value))
+                .HasConversion(unitWeight => unitWeight.Value, value => UnitWeightKilogramsFactory.Create(value))
                 .HasColumnType("DECIMAL(10,3)");
 
             workOrderLineEntityConfiguration.HasOne(workOrderLine => workOrderLine.WorkOrder)

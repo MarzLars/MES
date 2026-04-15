@@ -6,7 +6,7 @@ public sealed record WorkOrderLine
 {
     WorkOrderLine() { } // For EF Core
 
-    WorkOrderLine(
+    internal WorkOrderLine(
         WorkOrderLineId id,
         WorkOrderId workOrderId,
         WorkOrder? workOrder,
@@ -30,36 +30,29 @@ public sealed record WorkOrderLine
     public WorkOrder? WorkOrder { get; private set; }
     public ProductId ProductId { get; private set; }
     public Product Product { get; private set; } = null!;
-    public Quantity Quantity { get; }
-    public UnitWeightKilograms UnitWeightKilograms { get; }
+    public Quantity Quantity { get; private set; }
+    public UnitWeightKilograms UnitWeightKilograms { get; private set; }
     public DateTimeOffset CreatedDateTimeUtc { get; private set; }
+}
 
-    public decimal TotalLineWeightInKilograms => Quantity.Value * UnitWeightKilograms.Value;
-
-    public static WorkOrderLine FromProduct(Product product, Quantity quantity) {
+public static class WorkOrderLineFactory
+{
+    public static WorkOrderLine Create(Product product, Quantity quantity) {
         ArgumentNullException.ThrowIfNull(product);
 
         if (product.Id.Value <= 0)
-            throw new ArgumentException("Product must be persisted before it can be used in a work order line.",
-                nameof(product));
+            throw new ArgumentException("Product must be persisted before it can be used in a work order line.", nameof(product));
 
-        return new WorkOrderLine(new WorkOrderLineId(0), new WorkOrderId(0), null, product.Id, product, quantity,
-            product.UnitWeightKilograms, DateTimeOffset.UtcNow);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(quantity.Value);
+
+        return new WorkOrderLine(default, default, null, product.Id, product, quantity, product.UnitWeightKilograms, DateTimeOffset.UtcNow);
     }
+}
 
-    internal static WorkOrderLine FromDatabase(
-        int id,
-        WorkOrderId workOrderId,
-        WorkOrder? workOrder,
-        ProductId productId,
-        Product product,
-        Quantity quantity,
-        UnitWeightKilograms unitWeightKilograms,
-        DateTimeOffset createdDateTimeUtc) {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id);
-        ArgumentNullException.ThrowIfNull(product);
-
-        return new WorkOrderLine(new WorkOrderLineId(id), workOrderId, workOrder, productId, product, quantity,
-            unitWeightKilograms, createdDateTimeUtc);
+public static class WorkOrderLineExtensions
+{
+    public static decimal GetTotalLineWeightInKilograms(this WorkOrderLine workOrderLine) {
+        ArgumentNullException.ThrowIfNull(workOrderLine);
+        return workOrderLine.Quantity.Value * workOrderLine.UnitWeightKilograms.Value;
     }
 }

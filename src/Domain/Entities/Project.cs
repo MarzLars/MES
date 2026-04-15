@@ -6,7 +6,7 @@ public sealed record Project
 {
     Project() { } // For EF Core
 
-    Project(
+    internal Project(
         ProjectId id,
         ProjectName name,
         DateTimeOffset? startDate,
@@ -24,18 +24,16 @@ public sealed record Project
     public DateTimeOffset? StartDate { get; private set; }
     public DateTimeOffset? EndDate { get; private set; }
     public DateTimeOffset CreatedDateTimeUtc { get; private set; }
+}
 
+public static class ProjectFactory
+{
     public static Project Create(ProjectName name, DateTimeOffset? startDate = null, DateTimeOffset? endDate = null) {
-        return new Project(new ProjectId(0), name, startDate, endDate, DateTimeOffset.UtcNow);
-    }
+        ArgumentException.ThrowIfNullOrWhiteSpace(name.Value);
 
-    internal static Project FromDatabase(
-        int id,
-        ProjectName name,
-        DateTimeOffset? startDate,
-        DateTimeOffset? endDate,
-        DateTimeOffset createdDateTimeUtc) {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id);
-        return new Project(new ProjectId(id), name, startDate, endDate, createdDateTimeUtc);
+        if (startDate is not null && endDate is not null && endDate.Value < startDate.Value)
+            throw new ArgumentException("End date cannot be earlier than start date.", nameof(endDate));
+
+        return new Project(default, name, startDate, endDate, DateTimeOffset.UtcNow);
     }
 }

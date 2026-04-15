@@ -6,7 +6,7 @@ public sealed record Product
 {
     Product() { } // For EF Core
 
-    Product(
+    internal Product(
         ProductId id,
         ProductName name,
         UnitWeightKilograms unitWeightKilograms,
@@ -22,24 +22,19 @@ public sealed record Product
     public ProductId Id { get; private set; }
     public ProductName Name { get; private set; }
     public UnitWeightKilograms UnitWeightKilograms { get; private set; }
-    public ProductInventoryStatus InventoryStatus { get; private set; } = ProductInventoryStatus.OutOfStock;
+    public ProductInventoryStatus InventoryStatus { get; private set; } = ProductInventoryStatusFactory.CreateOutOfStock();
     public DateTimeOffset CreatedDateTimeUtc { get; private set; }
+}
 
+public static class ProductFactory
+{
     public static Product Create(ProductName name, UnitWeightKilograms unitWeightKilograms) =>
-        Create(name, unitWeightKilograms, ProductInventoryStatus.OutOfStock);
+        Create(name, unitWeightKilograms, ProductInventoryStatusFactory.CreateOutOfStock());
 
-    public static Product Create(ProductName name, UnitWeightKilograms unitWeightKilograms,
-        ProductInventoryStatus inventoryStatus) {
-        return new Product(new ProductId(0), name, unitWeightKilograms, inventoryStatus, DateTimeOffset.UtcNow);
-    }
-
-    internal static Product FromDatabase(
-        int id,
-        ProductName name,
-        UnitWeightKilograms unitWeightKilograms,
-        ProductInventoryStatus inventoryStatus,
-        DateTimeOffset createdDateTimeUtc) {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id);
-        return new Product(new ProductId(id), name, unitWeightKilograms, inventoryStatus, createdDateTimeUtc);
+    public static Product Create(ProductName name, UnitWeightKilograms unitWeightKilograms, ProductInventoryStatus inventoryStatus) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name.Value);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(unitWeightKilograms.Value);
+        ArgumentNullException.ThrowIfNull(inventoryStatus);
+        return new Product(default, name, unitWeightKilograms, inventoryStatus, DateTimeOffset.UtcNow);
     }
 }

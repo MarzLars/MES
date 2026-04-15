@@ -7,8 +7,7 @@ public sealed record WorkOrder
     readonly List<WorkOrderLine> _orderLines = [];
     WorkOrder() { } // For EF Core
 
-
-    WorkOrder(
+    internal WorkOrder(
         WorkOrderId id,
         ProjectId projectId,
         Project project,
@@ -26,19 +25,26 @@ public sealed record WorkOrder
     public Project Project { get; private set; } = null!;
     public DateTimeOffset CreatedDateTimeUtc { get; private set; }
     public IReadOnlyCollection<WorkOrderLine> OrderLines => _orderLines.AsReadOnly();
+}
 
-    public decimal TotalWeightInKilograms => _orderLines.Sum(orderLine => orderLine.TotalLineWeightInKilograms);
-
-    public static WorkOrder Create(
-        Project project,
-        IReadOnlyCollection<WorkOrderLineSpec> requestedLines,
-        IReadOnlyCollection<Product> availableProducts) {
+public static class WorkOrderFactory
+{
+    public static WorkOrder Create(Project project, IReadOnlyCollection<WorkOrderLineSpec> requestedLines, IReadOnlyCollection<Product> availableProducts) {
         ArgumentNullException.ThrowIfNull(project);
         ArgumentNullException.ThrowIfNull(requestedLines);
         ArgumentNullException.ThrowIfNull(availableProducts);
 
+        if (project.Id.Value <= 0)
+            throw new ArgumentException("Project must be persisted before creating a work order.", nameof(project));
+
         if (requestedLines.Count == 0)
             throw new ArgumentException("A work order must contain at least one line.", nameof(requestedLines));
+
+        if (requestedLines.Any(line => line.ProductId.Value <= 0))
+            throw new ArgumentException("All requested product ids must be greater than zero.", nameof(requestedLines));
+
+        if (availableProducts.Any(product => product is null || product.Id.Value <= 0))
+            throw new ArgumentException("All available products must be persisted before creating a work order.", nameof(availableProducts));
 
         var productMap = availableProducts
             .GroupBy(product => product.Id)
@@ -54,39 +60,25 @@ public sealed record WorkOrder
             .ToArray();
 
         if (missingProductIds.Length > 0)
-            throw new ArgumentException($"Unknown product ids: {string.Join(", ", missingProductIds)}.",
-                nameof(requestedLines));
-
-        if (project.Id.Value <= 0)
-            throw new ArgumentException("Project must be persisted before creating a work order.", nameof(project));
+            throw new ArgumentException($"Unknown product ids: {string.Join(", ", missingProductIds)}.", nameof(requestedLines));
 
         var normalizedLines = requestedLineArray
             .GroupBy(line => line.ProductId)
             .Select(group => new {
                 Product = productMap[group.Key],
-                Quantity = Quantity.From(group.Sum(line => line.Quantity.Value))
+                Quantity = QuantityFactory.Create(group.Sum(line => line.Quantity.Value))
             })
-            .Select(item => WorkOrderLine.FromProduct(item.Product, item.Quantity))
-            .ToArray();
+            .Select(item => WorkOrderLineFactory.Create(item.Product, item.Quantity))
+            .ToList();
 
-        return new WorkOrder(new WorkOrderId(0), project.Id, project, normalizedLines, DateTimeOffset.UtcNow);
+        return new WorkOrder(default, project.Id, project, normalizedLines, DateTimeOffset.UtcNow);
     }
+}
 
-    internal static WorkOrder FromDatabase(
-        int id,
-        ProjectId projectId,
-        Project project,
-        IReadOnlyCollection<WorkOrderLine> orderLines,
-        DateTimeOffset createdDateTimeUtc) {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id);
-        ArgumentNullException.ThrowIfNull(project);
-        ArgumentNullException.ThrowIfNull(orderLines);
-
-        if (orderLines.Count == 0)
-            throw new InvalidOperationException("A work order must contain at least one line.");
-
-        var lines = orderLines.ToArray();
-
-        return new WorkOrder(new WorkOrderId(id), projectId, project, lines, createdDateTimeUtc);
+public static class WorkOrderExtensions
+{
+    public static decimal GetTotalWeightInKilograms(this WorkOrder workOrder) {
+        ArgumentNullException.ThrowIfNull(workOrder);
+        return workOrder.OrderLines.Sum(workOrderLine => workOrderLine.GetTotalLineWeightInKilograms());
     }
 }

@@ -1,19 +1,11 @@
 ﻿namespace SteelOrdering.Domain.ValueObjects;
 
-public readonly record struct UnitWeightKilograms
+public readonly record struct UnitWeightKilograms(decimal Value);
+
+public static class UnitWeightKilogramsFactory
 {
-    public UnitWeightKilograms(decimal value) {
+    public static UnitWeightKilograms Create(decimal value) {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
-        Value = value;
-    }
-
-    public decimal Value { get; }
-
-    public static UnitWeightKilograms From(decimal value) {
-        return new UnitWeightKilograms(value);
-    }
-
-    public override string ToString() {
-        return Value.ToString("0.###");
+        return new(value);
     }
 }

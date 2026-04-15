@@ -17,7 +17,7 @@ public static class ProjectHandlers
         ManufacturingDbContext dbContext,
         CancellationToken cancellationToken) {
         try {
-            var project = Project.Create(request.ToProjectName());
+            var project = ProjectFactory.Create(request.ToProjectName());
             dbContext.Projects.Add(project);
             await dbContext.SaveChangesAsync(cancellationToken);
             return Results.Created($"/projects/{project.Id.Value}", new IdResponse(project.Id.Value));

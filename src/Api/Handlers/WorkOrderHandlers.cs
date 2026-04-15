@@ -51,7 +51,7 @@ public static class WorkOrderHandlers
                     ["lines"] = [$"Unknown product ids: {string.Join(", ", missingProductIds)}."]
                 });
 
-            var workOrder = WorkOrder.Create(project, lines, products);
+            var workOrder = WorkOrderFactory.Create(project, lines, products);
             dbContext.WorkOrders.Add(workOrder);
             await dbContext.SaveChangesAsync(cancellationToken);
 
