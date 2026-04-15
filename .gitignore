@@ -1,0 +1,15 @@
+## Build outputs
+bin/
+obj/
+
+## SQLite database files generated at runtime
+*.db
+*.db-shm
+*.db-wal
+
+## User-specific VS files
+.vs/
+*.user
+
+## Rider / JetBrains
+.idea/
