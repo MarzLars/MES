@@ -1,4 +1,4 @@
-﻿namespace SteelOrdering.Domain.ValueObjects;
+namespace SteelOrdering.Domain.ValueObjects;
 
 public readonly record struct ProjectId(
     int Value)

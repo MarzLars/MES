@@ -11,7 +11,7 @@ public sealed record WorkOrderLine
         WorkOrderId workOrderId,
         WorkOrder? workOrder,
         ProductId productId,
-        Product? product,
+        Product product,
         Quantity quantity,
         UnitWeightKilograms unitWeightKilograms,
         DateTimeOffset createdDateTimeUtc) {
@@ -29,7 +29,7 @@ public sealed record WorkOrderLine
     public WorkOrderId WorkOrderId { get; private set; }
     public WorkOrder? WorkOrder { get; private set; }
     public ProductId ProductId { get; private set; }
-    public Product? Product { get; private set; }
+    public Product Product { get; private set; } = null!;
     public Quantity Quantity { get; }
     public UnitWeightKilograms UnitWeightKilograms { get; }
     public DateTimeOffset CreatedDateTimeUtc { get; private set; }
@@ -52,11 +52,12 @@ public sealed record WorkOrderLine
         WorkOrderId workOrderId,
         WorkOrder? workOrder,
         ProductId productId,
-        Product? product,
+        Product product,
         Quantity quantity,
         UnitWeightKilograms unitWeightKilograms,
         DateTimeOffset createdDateTimeUtc) {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id);
+        ArgumentNullException.ThrowIfNull(product);
 
         return new WorkOrderLine(new WorkOrderLineId(id), workOrderId, workOrder, productId, product, quantity,
             unitWeightKilograms, createdDateTimeUtc);

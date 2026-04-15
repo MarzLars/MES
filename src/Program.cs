@@ -1,39 +1,24 @@
-using MES;
-using MES.Data;
-using MES.Models;
+using SteelOrdering.Api.Routing;
+using SteelOrdering.Data;
 
-//Bootstrap
-using var manufacturingDbContext = new ManufacturingDbContext();
+var builder = WebApplication.CreateSlimBuilder(args);
 
-try
-{
-    manufacturingDbContext.Database.EnsureCreated();
-    // Verify the schema is compatible (e.g., after code changes or migrations).
-    _ = manufacturingDbContext.Products.Any();
-}
-catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.Message.Contains("no such table"))
-{
-    // Quick fix for: "no such table" errors due to schema mismatches or missing migrations.
-    // Re-initialize for this terminal application.
-    manufacturingDbContext.Database.EnsureDeleted();
-    manufacturingDbContext.Database.EnsureCreated();
-}
+builder.WebHost.UseKestrelHttpsConfiguration();
 
-//Seed Data
-SeedInitialManufacturingData(manufacturingDbContext);
+builder.Services.AddDbContext<ManufacturingDbContext>();
+builder.Services.AddScoped<DataSeed>();
 
-// Start Application
-new TerminalInterface(manufacturingDbContext).Run();
+var app = builder.Build();
 
-// Helpers
-static void SeedInitialManufacturingData(ManufacturingDbContext manufacturingDbContext)
-{
-    if (manufacturingDbContext.Products.Any()) return;
+await WarmUpDatabaseAsync(app.Services);
+app.MapSteelOrderingEndpoints();
 
-    manufacturingDbContext.Products.AddRange(
-        new Product("HEA 200 Beam", 42.3m),
-        new Product("S355 Steel Plate", 78.5m),
-        new Product("IPE 300 Beam", 42.2m)
-    );
-    manufacturingDbContext.SaveChanges();
+app.Run();
+
+return;
+
+static async Task WarmUpDatabaseAsync(IServiceProvider services) {
+    using var scope = services.CreateScope();
+    var dataSeed = scope.ServiceProvider.GetRequiredService<DataSeed>();
+    await dataSeed.EnsureSchemaAndSeedProductsAsync();
 }
