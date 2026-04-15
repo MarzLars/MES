@@ -5,7 +5,7 @@ namespace SteelOrdering.Api.Routing;
 public static class EndpointMappings
 {
     public static WebApplication MapSteelOrderingEndpoints(this WebApplication app) {
-        app.MapGet("/", RootHandlers.Get);
+        app.MapGet("/health", RootHandlers.Health);
         app.MapPost("/test/seed", RootHandlers.SeedDatabase);
 
         var products = app.MapGroup("/products");
@@ -16,6 +16,7 @@ public static class EndpointMappings
         projects.MapPost("/", ProjectHandlers.Create);
 
         var workOrders = app.MapGroup("/work-orders");
+        workOrders.MapGet("/", WorkOrderHandlers.GetAll);
         workOrders.MapPost("/", WorkOrderHandlers.Create);
         workOrders.MapGet("/{workOrderId:int}", WorkOrderHandlers.GetById);
 

@@ -4,8 +4,8 @@ namespace SteelOrdering.Api.Handlers;
 
 public static class RootHandlers
 {
-    public static IResult Get() {
-        return Results.Ok("MES API is running. Use POST /test/seed to seed test data.");
+    public static IResult Health() {
+        return Results.Ok("Steel Ordering UI and API are running.");
     }
 
     public static async Task<IResult> SeedDatabase(DataSeed dataSeed, CancellationToken cancellationToken) {

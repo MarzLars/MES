@@ -11,6 +11,10 @@ builder.Services.AddScoped<DataSeed>();
 var app = builder.Build();
 
 await WarmUpDatabaseAsync(app.Services);
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.MapSteelOrderingEndpoints();
 
 app.Run();

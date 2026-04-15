@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Steel Ordering Dashboard</title>
+    <link rel="stylesheet" href="/site.css" />
+</head>
+<body>
+    <main class="page-shell">
+        <header class="hero">
+            <div>
+                <p class="eyebrow">ASP.NET Core minimal API</p>
+                <h1>Steel Ordering Dashboard</h1>
+                <p class="lede">
+                    Browse products, create projects, build work orders, and inspect recent orders from one interactive screen.
+                </p>
+            </div>
+
+            <aside class="status-card">
+                <div class="status-row">
+                    <span id="api-status-dot" class="status-dot" data-state="idle" aria-hidden="true"></span>
+                    <span id="api-status">Connecting…</span>
+                </div>
+                <p id="last-refresh" class="muted">No data loaded yet.</p>
+                <p class="muted">
+                    Health check: <a href="/health">/health</a>
+                </p>
+            </aside>
+        </header>
+
+        <section class="toolbar" aria-label="Dashboard actions">
+            <button id="refresh-button" type="button" class="button">Refresh dashboard</button>
+            <button id="seed-button" type="button" class="button secondary">Seed demo data</button>
+            <button id="clear-order-button" type="button" class="button secondary">Clear work order form</button>
+        </section>
+
+        <section class="grid primary-grid">
+            <article class="panel">
+                <div class="panel-heading">
+                    <h2>Create project</h2>
+                    <p>Add a new project and use it right away in the work order form.</p>
+                </div>
+
+                <form id="create-project-form" class="stack" novalidate>
+                    <label class="field">
+                        <span>Project name</span>
+                        <input id="project-name-input" name="name" type="text" maxlength="200" placeholder="e.g. Bridge package A" required />
+                    </label>
+
+                    <button type="submit" class="button">Create project</button>
+                </form>
+
+                <p id="create-project-message" class="message" aria-live="polite"></p>
+            </article>
+
+            <article class="panel">
+                <div class="panel-heading">
+                    <h2>Create work order</h2>
+                    <p>Choose a project, add one or more product lines, and submit the order.</p>
+                </div>
+
+                <form id="create-work-order-form" class="stack" novalidate>
+                    <label class="field">
+                        <span>Project</span>
+                        <select id="project-select" name="projectId" required></select>
+                    </label>
+
+                    <div class="line-editor">
+                        <div class="line-editor-header">
+                            <h3>Lines</h3>
+                            <button id="add-line-button" type="button" class="button secondary small">Add line</button>
+                        </div>
+
+                        <div id="work-order-lines" class="line-list"></div>
+                        <p class="hint">Every line needs a product and a quantity greater than zero.</p>
+                    </div>
+
+                    <button type="submit" class="button">Create work order</button>
+                </form>
+
+                <p id="create-work-order-message" class="message" aria-live="polite"></p>
+            </article>
+
+            <article class="panel">
+                <div class="panel-heading">
+                    <h2>Find work order</h2>
+                    <p>Jump straight to a specific order by its database ID.</p>
+                </div>
+
+                <form id="lookup-work-order-form" class="stack" novalidate>
+                    <label class="field">
+                        <span>Work order ID</span>
+                        <input id="work-order-id-input" name="workOrderId" type="number" min="1" step="1" placeholder="e.g. 1" />
+                    </label>
+
+                    <button type="submit" class="button">Load work order</button>
+                </form>
+
+                <p id="lookup-work-order-message" class="message" aria-live="polite"></p>
+
+                <div id="work-order-details" class="details-card">
+                    <p class="empty">Choose a work order from the list below or load one by ID.</p>
+                </div>
+            </article>
+        </section>
+
+        <section class="grid secondary-grid">
+            <article class="panel">
+                <div class="panel-heading">
+                    <h2>Products</h2>
+                    <p>Seeded steel items available for work order lines.</p>
+                </div>
+
+                <p id="products-empty" class="empty">No products available yet.</p>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Unit weight</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-table-body"></tbody>
+                    </table>
+                </div>
+            </article>
+
+            <article class="panel">
+                <div class="panel-heading">
+                    <h2>Projects</h2>
+                    <p>Projects available for scheduling new work orders.</p>
+                </div>
+
+                <p id="projects-empty" class="empty">No projects available yet.</p>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projects-table-body"></tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+
+        <section class="panel wide-panel">
+            <div class="panel-heading">
+                <h2>Recent work orders</h2>
+                <p>Latest work orders returned from the API, with a quick link to full details.</p>
+            </div>
+
+            <p id="work-orders-empty" class="empty">No work orders available yet.</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Project</th>
+                            <th>Lines</th>
+                            <th>Total weight</th>
+                            <th>Created</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="work-orders-table-body"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <template id="work-order-line-template">
+        <div class="line-row" data-line-row>
+            <label class="field compact">
+                <span>Product</span>
+                <select class="line-product" aria-label="Product"></select>
+            </label>
+
+            <label class="field compact quantity-field">
+                <span>Quantity</span>
+                <input class="line-quantity" type="number" min="1" step="1" value="1" required />
+            </label>
+
+            <button type="button" class="button secondary danger line-remove">Remove</button>
+        </div>
+    </template>
+
+    <script src="/app.js" defer></script>
+</body>
+</html>

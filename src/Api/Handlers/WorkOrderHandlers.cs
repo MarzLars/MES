@@ -9,6 +9,12 @@ namespace SteelOrdering.Api.Handlers;
 
 public static class WorkOrderHandlers
 {
+    public static Task<IResult> GetAll(int? limit, ManufacturingDbContext dbContext,
+        CancellationToken cancellationToken) {
+        return GetWorkOrdersQueryHandler.Handle(new GetWorkOrdersQuery(limit ?? 20), dbContext,
+            cancellationToken);
+    }
+
     public static Task<IResult> GetById(int workOrderId, ManufacturingDbContext dbContext,
         CancellationToken cancellationToken) {
         return GetWorkOrderByIdQueryHandler.Handle(new GetWorkOrderByIdQuery(workOrderId), dbContext,
