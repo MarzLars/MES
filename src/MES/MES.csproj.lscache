@@ -15,19 +15,11 @@ primary
 lastDtbSucceeded
 
 [properties]
-AssemblyName=MES
-CommandLineArgsForDesignTimeEvaluation=-langversion:12.0 -define:TRACE
-CompilerGeneratedFilesOutputPath=
-MaxSupportedLangVersion=12.0
-ProjectAssetsFile=<PATH>obj/project.assets.json
-RootNamespace=MES
-RunAnalyzers=
-RunAnalyzersDuringLiveAnalysis=
-SolutionPath=<PATH>../../MES.slnx
-TargetFrameworkIdentifier=.NETCoreApp
-TargetPath=<PATH>bin/Debug/net8.0/MES.dll
-TargetRefPath=<PATH>obj/Debug/net8.0/ref/MES.dll
-TemporaryDependencyNodeTargetIdentifier=net8.0
+CommandLineArgsForDesignTimeEvaluation=-langversion:14.0 -define:TRACE
+MaxSupportedLangVersion=14.0
+TargetPath=<PATH>bin/Debug/net10.0/MES.dll
+TargetRefPath=<PATH>obj/Debug/net10.0/ref/MES.dll
+TemporaryDependencyNodeTargetIdentifier=net10.0
 
 [commandLineArguments]
 /noconfig
@@ -37,44 +29,44 @@ TemporaryDependencyNodeTargetIdentifier=net8.0
 /fullpaths
 /nostdlib+
 /errorreport:prompt
-/warn:8
-/define:TRACE;DEBUG;NET;NET8_0;NETCOREAPP;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP1_0_OR_GREATER;NETCOREAPP1_1_OR_GREATER;NETCOREAPP2_0_OR_GREATER;NETCOREAPP2_1_OR_GREATER;NETCOREAPP2_2_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER
+/warn:10
+/define:TRACE;DEBUG;NET;NET10_0;NETCOREAPP;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NET9_0_OR_GREATER;NET10_0_OR_GREATER;NETCOREAPP1_0_OR_GREATER;NETCOREAPP1_1_OR_GREATER;NETCOREAPP2_0_OR_GREATER;NETCOREAPP2_1_OR_GREATER;NETCOREAPP2_2_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER
 /highentropyva+
 /nullable:enable
+/features:"InterceptorsNamespaces=;Microsoft.Extensions.Validation.Generated"
 /debug+
 /debug:portable
 /filealign:512
 /optimize-
-/out:obj\Debug\net8.0\MES.dll
-/refout:obj\Debug\net8.0\refint\MES.dll
+/out:obj\Debug\net10.0\MES.dll
+/refout:obj\Debug\net10.0\refint\MES.dll
 /target:exe
 /warnaserror-
 /utf8output
 /deterministic+
-/langversion:12.0
+/langversion:14.0
 /warnaserror+:NU1605,SYSLIB0011
 
 [sourceFiles]
 Commands/
  CreateProjectCommand.cs
  CreateWorkOrderCommand.cs
-Data/
- IDbConnectionFactory.cs
- SchemaInitializer.cs
+Data/ManufacturingDbContext.cs
 Models/
- OrderLine.cs
  Product.cs
  Project.cs
  WorkOrder.cs
-obj/Debug/net8.0/
- .NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+ WorkOrderLine.cs
+obj/Debug/net10.0/
+ .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
  MES.AssemblyInfo.cs
  MES.GlobalUsings.g.cs
 Program.cs
 Queries/GetWorkOrderQuery.cs
+TerminalInterface.cs
 
 [metadataReferences]
-<DOTNET>/packs/Microsoft.NETCore.App.Ref/8.0.25/ref/net8.0/
+<DOTNET>/packs/Microsoft.NETCore.App.Ref/10.0.5/ref/net10.0/
  Microsoft.CSharp.dll
  Microsoft.VisualBasic.Core.dll
  Microsoft.VisualBasic.dll
@@ -132,9 +124,11 @@ Queries/GetWorkOrderQuery.cs
  System.IO.FileSystem.Watcher.dll
  System.IO.IsolatedStorage.dll
  System.IO.MemoryMappedFiles.dll
+ System.IO.Pipelines.dll
  System.IO.Pipes.AccessControl.dll
  System.IO.Pipes.dll
  System.IO.UnmanagedMemoryStream.dll
+ System.Linq.AsyncEnumerable.dll
  System.Linq.dll
  System.Linq.Expressions.dll
  System.Linq.Parallel.dll
@@ -152,6 +146,7 @@ Queries/GetWorkOrderQuery.cs
  System.Net.Quic.dll
  System.Net.Requests.dll
  System.Net.Security.dll
+ System.Net.ServerSentEvents.dll
  System.Net.ServicePoint.dll
  System.Net.Sockets.dll
  System.Net.WebClient.dll
@@ -212,6 +207,7 @@ Queries/GetWorkOrderQuery.cs
  System.Text.Encodings.Web.dll
  System.Text.Json.dll
  System.Text.RegularExpressions.dll
+ System.Threading.AccessControl.dll
  System.Threading.Channels.dll
  System.Threading.dll
  System.Threading.Overlapped.dll
@@ -239,14 +235,27 @@ Queries/GetWorkOrderQuery.cs
  System.Xml.XPath.XDocument.dll
  WindowsBase.dll
 <NUGET>/
- dapper/2.1.35/lib/net7.0/Dapper.dll
- microsoft.data.sqlite.core/8.0.10/lib/net8.0/Microsoft.Data.Sqlite.dll
- sqlitepclraw.bundle_e_sqlite3/2.1.6/lib/netstandard2.0/SQLitePCLRaw.batteries_v2.dll
- sqlitepclraw.core/2.1.6/lib/netstandard2.0/SQLitePCLRaw.core.dll
- sqlitepclraw.provider.e_sqlite3/2.1.6/lib/net6.0/SQLitePCLRaw.provider.e_sqlite3.dll
+ microsoft.data.sqlite.core/10.0.6/lib/net8.0/Microsoft.Data.Sqlite.dll
+ microsoft.entityframeworkcore.abstractions/10.0.6/lib/net10.0/Microsoft.EntityFrameworkCore.Abstractions.dll
+ microsoft.entityframeworkcore.relational/10.0.6/lib/net10.0/Microsoft.EntityFrameworkCore.Relational.dll
+ microsoft.entityframeworkcore.sqlite.core/10.0.6/lib/net10.0/Microsoft.EntityFrameworkCore.Sqlite.dll
+ microsoft.entityframeworkcore/10.0.6/lib/net10.0/Microsoft.EntityFrameworkCore.dll
+ microsoft.extensions.caching.abstractions/10.0.6/lib/net10.0/Microsoft.Extensions.Caching.Abstractions.dll
+ microsoft.extensions.caching.memory/10.0.6/lib/net10.0/Microsoft.Extensions.Caching.Memory.dll
+ microsoft.extensions.configuration.abstractions/10.0.6/lib/net10.0/Microsoft.Extensions.Configuration.Abstractions.dll
+ microsoft.extensions.dependencyinjection.abstractions/10.0.6/lib/net10.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll
+ microsoft.extensions.dependencyinjection/10.0.6/lib/net10.0/Microsoft.Extensions.DependencyInjection.dll
+ microsoft.extensions.dependencymodel/10.0.6/lib/net10.0/Microsoft.Extensions.DependencyModel.dll
+ microsoft.extensions.logging.abstractions/10.0.6/lib/net10.0/Microsoft.Extensions.Logging.Abstractions.dll
+ microsoft.extensions.logging/10.0.6/lib/net10.0/Microsoft.Extensions.Logging.dll
+ microsoft.extensions.options/10.0.6/lib/net10.0/Microsoft.Extensions.Options.dll
+ microsoft.extensions.primitives/10.0.6/lib/net10.0/Microsoft.Extensions.Primitives.dll
+ sqlitepclraw.bundle_e_sqlite3/2.1.11/lib/netstandard2.0/SQLitePCLRaw.batteries_v2.dll
+ sqlitepclraw.core/2.1.11/lib/netstandard2.0/SQLitePCLRaw.core.dll
+ sqlitepclraw.provider.e_sqlite3/2.1.11/lib/net6.0/SQLitePCLRaw.provider.e_sqlite3.dll
 
 [analyzerReferences]
-<DOTNET>/packs/Microsoft.NETCore.App.Ref/8.0.25/analyzers/dotnet/cs/
+<DOTNET>/packs/Microsoft.NETCore.App.Ref/10.0.5/analyzers/dotnet/cs/
  Microsoft.Interop.ComInterfaceGenerator.dll
  Microsoft.Interop.JavaScript.JSImportGenerator.dll
  Microsoft.Interop.LibraryImportGenerator.dll
@@ -256,7 +265,14 @@ Queries/GetWorkOrderQuery.cs
 <DOTNET>/sdk/10.0.201/Sdks/Microsoft.NET.Sdk/analyzers/
  Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll
  Microsoft.CodeAnalysis.NetAnalyzers.dll
+<NUGET>/microsoft.codeanalysis.analyzers/3.11.0/analyzers/dotnet/cs/
+ Microsoft.CodeAnalysis.Analyzers.dll
+ Microsoft.CodeAnalysis.CSharp.Analyzers.dll
+<NUGET>/
+ microsoft.entityframeworkcore.analyzers/10.0.6/analyzers/dotnet/cs/Microsoft.EntityFrameworkCore.Analyzers.dll
+ microsoft.extensions.logging.abstractions/10.0.6/analyzers/dotnet/roslyn4.4/cs/Microsoft.Extensions.Logging.Generators.dll
+ microsoft.extensions.options/10.0.6/analyzers/dotnet/roslyn4.4/cs/Microsoft.Extensions.Options.SourceGeneration.dll
 
 [analyzerConfigFiles]
-<DOTNET>/sdk/10.0.201/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_8_default.globalconfig
-obj/Debug/net8.0/MES.GeneratedMSBuildEditorConfig.editorconfig
+<DOTNET>/sdk/10.0.201/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_10_default.globalconfig
+obj/Debug/net10.0/MES.GeneratedMSBuildEditorConfig.editorconfig

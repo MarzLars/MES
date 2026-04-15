@@ -1,20 +1,15 @@
-using Dapper;
 using MES.Data;
+using MES.Models;
 
 namespace MES.Commands;
 
-/// <summary>
-///     Creates a new Project and returns its generated Id.
-///     Returning the Id here is consistent with the CQS corollary described in the README:
-///     it is the minimal status needed by the caller for bookkeeping, not a full query result.
-/// </summary>
-public sealed class CreateProjectCommand(
-    IDbConnectionFactory connectionFactory)
+public sealed class CreateProjectCommand(ManufacturingDbContext manufacturingDbContext)
 {
-    public int Execute(string name) {
-        using var db = connectionFactory.Create();
-        return db.ExecuteScalar<int>(
-            "INSERT INTO Project (Name) VALUES (@Name); SELECT last_insert_rowid();",
-            new { Name = name });
+    public int Execute(string projectName)
+    {
+        var newlyCreatedProject = new Project(projectName);
+        manufacturingDbContext.Projects.Add(newlyCreatedProject);
+        manufacturingDbContext.SaveChanges();
+        return newlyCreatedProject.ProjectId;
     }
 }
