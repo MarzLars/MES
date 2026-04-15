@@ -1,69 +1,53 @@
--- =============================================================================
--- MES Mini Order System – Database Schema
--- Dialect: SQL Server (T-SQL)
--- Compatible alternative: SQLite (used by the demo console app)
--- =============================================================================
+-- SQL dialect: SQLite
+-- MES database schema snapshot for the current SQLite-backed EF Core model.
 
--- Products catalogue: steel profiles and plates with their weight per unit
-CREATE TABLE Product (
-    ProductId                INT            NOT NULL IDENTITY PRIMARY KEY,
-    ProductName              NVARCHAR(200)  NOT NULL,
-    WeightInKilogramsPerUnit DECIMAL(10,3)  NOT NULL CHECK (WeightInKilogramsPerUnit > 0),
-    CreatedDateTimeUtc       DATETIMEOFFSET NOT NULL DEFAULT SYSUTCDATETIME()
+CREATE TABLE product (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    unit_weight_kilograms REAL NOT NULL CHECK (unit_weight_kilograms > 0),
+    created_date_time_utc TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
--- A Project groups one or more work orders
-CREATE TABLE Project (
-    ProjectId           INT            NOT NULL IDENTITY PRIMARY KEY,
-    ProjectName         NVARCHAR(200)  NOT NULL,
-    CreatedDateTimeUtc  DATETIMEOFFSET NOT NULL DEFAULT SYSUTCDATETIME()
+CREATE TABLE project (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    created_date_time_utc TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
--- A WorkOrder belongs to exactly one Project
-CREATE TABLE WorkOrder (
-    WorkOrderId        INT            NOT NULL IDENTITY PRIMARY KEY,
-    ProjectId          INT            NOT NULL,
-    CreatedDateTimeUtc DATETIMEOFFSET NOT NULL DEFAULT SYSUTCDATETIME(),
-    
-    CONSTRAINT FK_WorkOrder_Project FOREIGN KEY (ProjectId) 
-        REFERENCES Project(ProjectId) ON DELETE NO ACTION
+CREATE TABLE work_order (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    project_id INTEGER NOT NULL,
+    created_date_time_utc TEXT NOT NULL DEFAULT (datetime('now')),
+    CONSTRAINT fk_work_order_project FOREIGN KEY (project_id) REFERENCES project (id)
 );
 
--- Each WorkOrderLine links a WorkOrder to a Product with a quantity
-CREATE TABLE WorkOrderLine (
-    WorkOrderLineId    INT            NOT NULL IDENTITY PRIMARY KEY,
-    WorkOrderId        INT            NOT NULL,
-    ProductId          INT            NOT NULL,
-    Quantity           INT            NOT NULL CHECK (Quantity > 0),
-    CreatedDateTimeUtc DATETIMEOFFSET NOT NULL DEFAULT SYSUTCDATETIME(),
-    
-    CONSTRAINT FK_WorkOrderLine_WorkOrder FOREIGN KEY (WorkOrderId) 
-        REFERENCES WorkOrder(WorkOrderId) ON DELETE NO ACTION,
-    CONSTRAINT FK_WorkOrderLine_Product FOREIGN KEY (ProductId) 
-        REFERENCES Product(ProductId) ON DELETE NO ACTION
+CREATE TABLE work_order_line (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    work_order_id INTEGER NOT NULL,
+    product_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL CHECK (quantity > 0),
+    unit_weight_kilograms REAL NOT NULL CHECK (unit_weight_kilograms > 0),
+    created_date_time_utc TEXT NOT NULL DEFAULT (datetime('now')),
+    CONSTRAINT fk_work_order_line_work_order FOREIGN KEY (work_order_id) REFERENCES work_order (id),
+    CONSTRAINT fk_work_order_line_product FOREIGN KEY (product_id) REFERENCES product (id)
 );
 
--- =============================================================================
--- Explicit Indexes for Foreign Keys (Performance Optimization)
--- =============================================================================
-CREATE INDEX IX_WorkOrder_ProjectId ON WorkOrder(ProjectId);
-CREATE INDEX IX_WorkOrderLine_WorkOrderId ON WorkOrderLine(WorkOrderId);
-CREATE INDEX IX_WorkOrderLine_ProductId ON WorkOrderLine(ProductId);
+CREATE INDEX ix_work_order_project_id ON work_order (project_id);
+CREATE INDEX ix_work_order_line_work_order_id ON work_order_line (work_order_id);
+CREATE INDEX ix_work_order_line_product_id ON work_order_line (product_id);
 
--- =============================================================================
--- Sample query: work order with total weight, sorted by order-line insertion order
--- =============================================================================
+-- Example query shape matching the API: work order with lines and totals.
 SELECT
-    wo.WorkOrderId                   AS WorkOrderId,
-    p.ProjectName                    AS ProjectName,
-    pr.ProductName                   AS ProductName,
-    pr.WeightInKilogramsPerUnit,
-    wol.Quantity,
-    wol.Quantity * pr.WeightInKilogramsPerUnit AS LineWeightInKilograms,
-    SUM(wol.Quantity * pr.WeightInKilogramsPerUnit) OVER (PARTITION BY wo.WorkOrderId) AS TotalWeightInKilograms,
-    wo.CreatedDateTimeUtc            AS WorkOrderCreatedUtc
-FROM  WorkOrder wo
-JOIN  Project   p   ON p.ProjectId = wo.ProjectId
-JOIN  WorkOrderLine wol ON wol.WorkOrderId = wo.WorkOrderId
-JOIN  Product   pr  ON pr.ProductId = wol.ProductId
-ORDER BY wol.WorkOrderLineId;
+    work_order.id AS work_order_id,
+    project.name AS project_name,
+    product.name AS product_name,
+    product.unit_weight_kilograms AS product_unit_weight_kg,
+    work_order_line.quantity AS line_quantity,
+    work_order_line.quantity * product.unit_weight_kilograms AS line_weight_kg,
+    SUM(work_order_line.quantity * product.unit_weight_kilograms) OVER (PARTITION BY work_order.id) AS total_weight_kg,
+    work_order.created_date_time_utc AS work_order_created_utc
+FROM work_order
+    JOIN project ON project.id = work_order.project_id
+    JOIN work_order_line ON work_order_line.work_order_id = work_order.id
+    JOIN product ON product.id = work_order_line.product_id
+ORDER BY work_order_line.id;
