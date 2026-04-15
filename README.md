@@ -57,7 +57,7 @@ src/MES/
   Commands/        – Skrivende operasjoner som gir sideeffekter (CreateProject, CreateWorkOrder)
   Queries/         – Lesende operasjoner (GetWorkOrder)
   Data/            – Entity Framework Core DbContext (ManufacturingDbContext)
-  TerminalInterface.cs – Hoved interaktive applikasjonsløkken og UI-logikk
+  TerminalInterface.cs – Orkestrerer den interaktive terminalapplikasjonen. Håndterer app-loop, menyvalg og brukerinput.
   Program.cs       – Rent inngangspunkt for oppstart og initiering (seeding)
 ```
 
@@ -67,7 +67,7 @@ src/MES/
 
 ### Rik domenemodell
 
-Applikasjonen prøver å bruke en **Rich Domain Model**. 'Business rules' og tilstandsoverganger er innkapslet i hvert sitt domene (ved bruk av records). For eksempel:
+Applikasjonen prøver å bruke en **"Rich Domain Model"**. 'Business rules' og tilstandsoverganger er innkapslet i hvert sitt domene (ved bruk av records). For eksempel:
 
 - **Validering**: Enheter som vekt og kvantitet valideres ved opprettelse (f.eks. må være større enn 0).
 - **Innkapslede samlinger**: Arbeidsordrelinjer administreres gjennom metoder på `WorkOrder`-recordet, og forhindrer ekstern manipulering av den underliggende samlingen.
@@ -93,6 +93,7 @@ Logikk uttrykkes **deklarativt**:
 ---
 
 # Hva jeg ville gjort annerledes med mer tid:
+
 - **UI**: Bruke Blazor eller enkel ASP.NET for å lage et mer brukervennlig grensesnitt, i stedet for en ren terminalapplikasjon.
 - **EF Core migrations**: Implementere EF Core migrations for å håndtere databaseendringer mer robust, i stedet for å slette og gjenopprette databasen ved schema mismatch.
 - **Lagerstatus og validering**: Implementere logikk for lagerbeholdning. Systemet har i dag validering av input (f.eks. positive tall), men mangler sjekk mot faktisk lagerstatus.
