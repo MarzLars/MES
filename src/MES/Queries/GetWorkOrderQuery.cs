@@ -39,13 +39,15 @@ public sealed class GetWorkOrderQuery(IDbConnectionFactory connectionFactory)
         var first = rows[0];
         var lines = rows
             .Select(r => new OrderLine(r.OrderLineId, r.WorkOrderId, r.ProductId,
-                                       r.ProductName, (decimal)r.WeightKgPerUnit, r.Quantity))
+                                       r.ProductName, r.WeightKgPerUnit, r.Quantity))
             .ToList();
 
         return new WorkOrder(first.WorkOrderId, first.ProjectId, first.ProjectName, lines);
     }
 
-    // Flat DTO matching the exact column types returned by SQLite/SQL Server
+    // Flat DTO matching the column types returned by SQLite/SQL Server.
+    // WeightKgPerUnit is declared as decimal; Dapper converts the REAL value
+    // from SQLite without precision loss for the weight ranges encountered.
     private sealed class FlatRow
     {
         public int WorkOrderId  { get; init; }
@@ -54,7 +56,7 @@ public sealed class GetWorkOrderQuery(IDbConnectionFactory connectionFactory)
         public int OrderLineId  { get; init; }
         public int ProductId    { get; init; }
         public string ProductName  { get; init; } = "";
-        public double WeightKgPerUnit { get; init; }
+        public decimal WeightKgPerUnit { get; init; }
         public int Quantity     { get; init; }
     }
 }
