@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SteelOrdering.Api.Contracts.Response;
 using SteelOrdering.Data;
+using SteelOrdering.Domain.Entities;
 
 namespace SteelOrdering.Api.Queries;
 
@@ -24,18 +25,23 @@ public static class GetWorkOrdersQueryHandler
                 ["limit"] = ["Limit must be greater than zero."]
             });
 
-        var response = await dbContext.WorkOrders
+        var workOrders = await dbContext.WorkOrders
             .AsNoTracking()
-            .OrderByDescending(workOrder => workOrder.CreatedDateTimeUtc)
+            .Include(workOrder => workOrder.Project)
+            .Include(workOrder => workOrder.OrderLines)
+            .ToArrayAsync(cancellationToken);
+
+        var response = workOrders
+            .OrderByDescending(workOrder => workOrder.Id.Value)
             .Take(query.Limit)
             .Select(workOrder => new WorkOrderSummaryResponse(
                 workOrder.Id.Value,
                 workOrder.ProjectId.Value,
                 workOrder.Project.Name.Value,
                 workOrder.CreatedDateTimeUtc,
-                workOrder.OrderLines.Count(),
-                workOrder.OrderLines.Sum(orderLine => orderLine.Quantity.Value * orderLine.UnitWeightKilograms.Value)))
-            .ToArrayAsync(cancellationToken);
+                workOrder.OrderLines.Count,
+                workOrder.GetTotalWeightInKilograms()))
+            .ToArray();
 
         return Results.Ok(response);
     }

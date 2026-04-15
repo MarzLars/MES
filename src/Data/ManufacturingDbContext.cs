@@ -36,7 +36,7 @@ public sealed class ManufacturingDbContext(
 
             productEntityConfiguration.Property(product => product.Id)
                 .HasColumnName("id")
-                .HasConversion(id => id.Value, value => ProductIdFactory.Create(value))
+                .HasConversion(id => id.Value, value => new ProductId(value))
                 .ValueGeneratedOnAdd();
 
             productEntityConfiguration.Property(product => product.Name)
@@ -73,7 +73,7 @@ public sealed class ManufacturingDbContext(
 
             projectEntityConfiguration.Property(project => project.Id)
                 .HasColumnName("id")
-                .HasConversion(id => id.Value, value => ProjectIdFactory.Create(value))
+                .HasConversion(id => id.Value, value => new ProjectId(value))
                 .ValueGeneratedOnAdd();
 
             projectEntityConfiguration.Property(project => project.Name)
@@ -99,7 +99,7 @@ public sealed class ManufacturingDbContext(
 
             workOrderEntityConfiguration.Property(workOrder => workOrder.Id)
                 .HasColumnName("id")
-                .HasConversion(id => id.Value, value => WorkOrderIdFactory.Create(value))
+                .HasConversion(id => id.Value, value => new WorkOrderId(value))
                 .ValueGeneratedOnAdd();
 
             workOrderEntityConfiguration.Property(workOrder => workOrder.ProjectId)
@@ -125,7 +125,7 @@ public sealed class ManufacturingDbContext(
 
             workOrderLineEntityConfiguration.Property(workOrderLine => workOrderLine.Id)
                 .HasColumnName("id")
-                .HasConversion(id => id.Value, value => WorkOrderLineIdFactory.Create(value))
+                .HasConversion(id => id.Value, value => new WorkOrderLineId(value))
                 .ValueGeneratedOnAdd();
 
             workOrderLineEntityConfiguration.Property(workOrderLine => workOrderLine.WorkOrderId)

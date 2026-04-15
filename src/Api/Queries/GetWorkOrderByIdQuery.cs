@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SteelOrdering.Api.Contracts.Response;
 using SteelOrdering.Data;
+using SteelOrdering.Domain.Entities;
 using SteelOrdering.Domain.ValueObjects;
 
 namespace SteelOrdering.Api.Queries;
@@ -27,29 +28,33 @@ public static class GetWorkOrderByIdQueryHandler
 
         var workOrderId = WorkOrderIdFactory.Create(query.WorkOrderId);
 
-        var response = await dbContext.WorkOrders
+        var workOrder = await dbContext.WorkOrders
             .AsNoTracking()
-            .Where(workOrder => workOrder.Id == workOrderId)
-            .Select(workOrder => new WorkOrderResponse(
-                workOrder.Id.Value,
-                workOrder.ProjectId.Value,
-                workOrder.Project.Name.Value,
-                workOrder.CreatedDateTimeUtc,
-                workOrder.OrderLines
-                    .OrderBy(orderLine => orderLine.Id)
-                    .Select(orderLine => new WorkOrderLineResponse(
-                        orderLine.Id.Value,
-                        orderLine.ProductId.Value,
-                        orderLine.Product.Name.Value,
-                        orderLine.Quantity.Value,
-                        orderLine.UnitWeightKilograms.Value,
-                        orderLine.Quantity.Value * orderLine.UnitWeightKilograms.Value))
-                    .ToArray(),
-                workOrder.OrderLines.Sum(orderLine => orderLine.Quantity.Value * orderLine.UnitWeightKilograms.Value)))
-            .SingleOrDefaultAsync(cancellationToken);
+            .Include(workOrder => workOrder.Project)
+            .Include(workOrder => workOrder.OrderLines)
+                .ThenInclude(orderLine => orderLine.Product)
+            .SingleOrDefaultAsync(workOrder => workOrder.Id == workOrderId, cancellationToken);
 
-        return response is null ?
-            Results.NotFound() :
-            Results.Ok(response);
+        if (workOrder is null)
+            return Results.NotFound();
+
+        var response = new WorkOrderResponse(
+            workOrder.Id.Value,
+            workOrder.ProjectId.Value,
+            workOrder.Project.Name.Value,
+            workOrder.CreatedDateTimeUtc,
+            workOrder.OrderLines
+                .OrderBy(orderLine => orderLine.Id.Value)
+                .Select(orderLine => new WorkOrderLineResponse(
+                    orderLine.Id.Value,
+                    orderLine.ProductId.Value,
+                    orderLine.Product.Name.Value,
+                    orderLine.Quantity.Value,
+                    orderLine.UnitWeightKilograms.Value,
+                    orderLine.GetTotalLineWeightInKilograms()))
+                .ToArray(),
+            workOrder.GetTotalWeightInKilograms());
+            
+        return Results.Ok(response);
     }
 }

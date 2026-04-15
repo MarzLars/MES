@@ -51,11 +51,11 @@ public sealed class DataSeed(
         if (await dbContext.WorkOrders.AnyAsync(cancellationToken)) return;
 
         var project = await dbContext.Projects
-            .OrderBy(project => project.CreatedDateTimeUtc)
+            .OrderBy(project => project.Id.Value)
             .FirstAsync(cancellationToken);
 
         var products = await dbContext.Products
-            .OrderBy(product => product.CreatedDateTimeUtc)
+            .OrderBy(product => product.Id.Value)
             .Take(2)
             .ToListAsync(cancellationToken);
 
