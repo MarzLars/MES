@@ -5,16 +5,18 @@ namespace MES.Commands;
 
 /// <param name="ProductId">Existing product to include on the order line.</param>
 /// <param name="Quantity">Number of units ordered (must be positive).</param>
-public record OrderLineRequest(int ProductId, int Quantity);
+public record OrderLineRequest(
+    int ProductId,
+    int Quantity);
 
 /// <summary>
-/// Creates a WorkOrder with one or more OrderLines inside a single transaction.
-/// Returns the generated WorkOrder Id for caller bookkeeping (CQS corollary — see README).
+///     Creates a WorkOrder with one or more OrderLines inside a single transaction.
+///     Returns the generated WorkOrder Id for caller bookkeeping (CQS corollary — see README).
 /// </summary>
-public sealed class CreateWorkOrderCommand(IDbConnectionFactory connectionFactory)
+public sealed class CreateWorkOrderCommand(
+    IDbConnectionFactory connectionFactory)
 {
-    public int Execute(int projectId, IEnumerable<OrderLineRequest> lines)
-    {
+    public int Execute(int projectId, IEnumerable<OrderLineRequest> lines) {
         using var db = connectionFactory.Create();
         db.Open();
         using var tx = db.BeginTransaction();
@@ -24,13 +26,10 @@ public sealed class CreateWorkOrderCommand(IDbConnectionFactory connectionFactor
             new { ProjectId = projectId },
             tx);
 
-        foreach (var line in lines)
-        {
-            db.Execute(
-                "INSERT INTO OrderLine (WorkOrderId, ProductId, Quantity) VALUES (@WorkOrderId, @ProductId, @Quantity);",
-                new { WorkOrderId = workOrderId, line.ProductId, line.Quantity },
-                tx);
-        }
+        db.Execute(
+            "INSERT INTO OrderLine (WorkOrderId, ProductId, Quantity) VALUES (@WorkOrderId, @ProductId, @Quantity);",
+            lines.Select(line => new { WorkOrderId = workOrderId, line.ProductId, line.Quantity }),
+            tx);
 
         tx.Commit();
         return workOrderId;

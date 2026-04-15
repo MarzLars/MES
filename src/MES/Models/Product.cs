@@ -1,3 +1,6 @@
 namespace MES.Models;
 
-public record Product(int Id, string Name, decimal WeightKgPerUnit);
+public record Product(
+    int Id,
+    string Name,
+    decimal WeightKgPerUnit);
