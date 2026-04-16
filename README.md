@@ -46,7 +46,7 @@ Målet i dette prosjektet er å gjøre det enkelt å uttrykke riktige tilstander
 | Minimal APIs og tynne handlers | Endepunktene skal være små og kun koordinere input, spørringer og kommandoer. | `EndpointMappings.MapSteelOrderingEndpoints()` grupperer `/products`, `/projects` og `/work-orders`, mens `WorkOrderHandlers.Create(...)` bare orkestrerer. |
 | CQRS for lesing og skriving | Lesemodeller kan optimaliseres uavhengig av skriving. | `GetProductsQueryHandler` bruker `AsNoTracking()` og projiserer direkte til `ProductResponse`, mens `WorkOrderHandlers.Create(...)` håndterer opprettelse. |
 | Atferd i egne extension-metoder | Små domeneberegninger holdes nær typen uten å gjøre modellene tunge. | `workOrder.GetTotalWeightInKilograms()` og `workOrderLine.GetTotalLineWeightInKilograms()`. |
-| Kort og moderne C#-syntaks | Koden skal være så kort som mulig uten å miste lesbarhet. | Eksempler er `public sealed record CreateProjectRequest(string Name);`, collection expressions som `[]`, og små expression-bodied metoder. |
+| Kort og moderne C#-syntaks | Koden skal være så kort som mulig uten å miste lesbarhet. | Eksempler er `public sealed record CreateProjectRequest(string Name);`, expression-bodied metoder `public static Product Create(ProductName name,UnitWeightKilograms unitWeightKilograms) => Create(name, unitWeightKilograms, ProductInventoryStatusFactory.CreateOutOfStock());`. |
 
 ### Praktiske eksempler fra prosjektet
 
@@ -55,17 +55,6 @@ Målet i dette prosjektet er å gjøre det enkelt å uttrykke riktige tilstander
 - `CreateWorkOrderRequest` oversettes til `WorkOrderLineSpec` i API-laget før domenet får objektet.
 - `GetWorkOrderByIdQueryHandler` leser med `AsNoTracking()` og henter bare det som trengs til responsen.
 
-## Struktur
-
-```text
-src/
-  Program.cs
-  Data/
-  Domain/
-  Api/
-  wwwroot/
-```
-
 ## Merknader
 
 - Domenet bruker uforanderlige typer og value objects for å holde ugyldige tilstander ute av modellen. For eksempel kan ikke en `WorkOrder` opprettes uten et gyldig `Project`.
@@ -73,3 +62,9 @@ src/
 - Databaseskjemaet opprettes automatisk ved oppstart fra EF Core-modellen.
 - Seed-logikken ligger i `src/Data/DataSeed.cs`.
 - Et eksempel på SQLite-export ligger i `examples/steel-ordering-sample.sql`.
+
+# Forbedringer/ Hva jeg ville gjort annerledes med mer tid:
+- Bedre feilhåndtering i API-laget
+- Legge til mer komplekse regler, som å forhindre bestilling av produkter som er utsolgt.
+- Implementere mer avansert spørring, som å filtrere work orders etter status eller dato.
+
